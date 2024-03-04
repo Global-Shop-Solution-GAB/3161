@@ -1,0 +1,161 @@
+Program.Sub.ScreenSU.Start
+gui.F_Main..create
+gui.F_Main..caption("Group Location")
+gui.F_Main..size(4770,1935)
+gui.F_Main..position(0,0)
+gui.F_Main..event(unload,exit)
+gui.F_Main..alwaysontop(False)
+gui.F_Main..fontname("Arial")
+gui.F_Main..fontsize(8)
+gui.F_Main..forecolor(0)
+gui.F_Main..fontstyle(False,False,False,False,False)
+gui.F_Main..BackColor(-2147483633)
+gui.F_Main..controlbox(True)
+gui.F_Main..maxbutton(False)
+gui.F_Main..minbutton(True)
+gui.F_Main..mousepointer(0)
+gui.F_Main..moveable(True)
+gui.F_Main..sizeable(False)
+gui.F_Main..ShowInTaskBar(True)
+gui.F_Main..titlebar(True)
+gui.F_Main.frmControls.create(frame)
+gui.F_Main.frmControls.caption("")
+gui.F_Main.frmControls.size(4500,435)
+gui.F_Main.frmControls.position(55,855)
+gui.F_Main.frmControls.visible(True)
+gui.F_Main.frmControls.borderstyle(0)
+gui.F_Main.frmControls.fontname("Arial")
+gui.F_Main.frmControls.fontsize(8)
+gui.F_Main.cmdSave.create(button)
+gui.F_Main.cmdSave.caption("Save")
+gui.F_Main.cmdSave.visible(True)
+gui.F_Main.cmdSave.size(855,375)
+gui.F_Main.cmdSave.zorder(0)
+gui.F_Main.cmdSave.position(0,0)
+gui.F_Main.cmdSave.enabled(true)
+gui.F_Main.cmdSave.parent("frmcontrols")
+gui.F_Main.cmdSave.fontname("Arial")
+gui.F_Main.cmdSave.fontsize(8)
+gui.F_Main.cmdSave.event(click,cmdsave_click)
+gui.F_Main.cmdClear.create(button)
+gui.F_Main.cmdClear.caption("Clear")
+gui.F_Main.cmdClear.visible(True)
+gui.F_Main.cmdClear.size(855,375)
+gui.F_Main.cmdClear.zorder(0)
+gui.F_Main.cmdClear.position(975,0)
+gui.F_Main.cmdClear.enabled(True)
+gui.F_Main.cmdClear.parent("frmcontrols")
+gui.F_Main.cmdClear.fontname("Arial")
+gui.F_Main.cmdClear.fontsize(8)
+gui.F_Main.cmdClear.event(click,cmdClear_click)
+gui.F_Main.lbl1.create(label,"Group",True,2490,255,1,100,100,True,0,Arial,8,-2147483633,0)
+gui.F_Main.txtGroup.create(textbox,"",True,2550,315,0,100,400,True,0,Arial,8,-2147483643,1)
+gui.F_Main.cmdGroup.create(button)
+gui.F_Main.cmdGroup.caption("^")
+gui.F_Main.cmdGroup.visible(True)
+gui.F_Main.cmdGroup.size(390,375)
+gui.F_Main.cmdGroup.zorder(0)
+gui.F_Main.cmdGroup.position(2700,380)
+gui.F_Main.cmdGroup.enabled(True)
+gui.F_Main.cmdGroup.fontname("Arial")
+gui.F_Main.cmdGroup.fontsize(8)
+gui.F_Main.cmdGroup.event(click,cmdgroup_click)
+gui.F_Main.cmdGroup.BackColor(-2147483643)
+gui.F_Main.txtLocation.create(textbox,"",True,555,285,0,3145,415,True,0,Arial,8,-2147483643,1)
+gui.F_Main.cmdLocation.create(button)
+gui.F_Main.cmdLocation.caption("^")
+gui.F_Main.cmdLocation.visible(True)
+gui.F_Main.cmdLocation.size(390,375)
+gui.F_Main.cmdLocation.zorder(0)
+gui.F_Main.cmdLocation.position(3800,375)
+gui.F_Main.cmdLocation.enabled(True)
+gui.F_Main.cmdLocation.fontname("Arial")
+gui.F_Main.cmdLocation.fontsize(8)
+gui.F_Main.cmdLocation.event(click,cmdlocation_click)
+gui.F_Main.lbl2.create(label,"Location",True,1935,255,1,3200,200,True,0,Arial,8,-2147483633,0)
+
+
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.sub.Main.start
+
+F.ODBC.Connection!con.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+Gui.F_main..show
+
+Program.sub.main.end
+
+program.sub.cmdSave_click.start
+V.Local.sQuery.Declare(String)
+F.Intrinsic.String.Concat("SELECT * FROM ATG_111_GROUP_INV_LOC WHERE GS_GROUP= '",V.screen.F_Main!txtGroup.text,"' ",V.Local.squery)
+F.ODBC.Connection!con.OpenRecordsetRW("rst",V.Local.sQuery)
+F.Intrinsic.Control.If(V.Odbc.con!rst.EOf,=,True)
+	F.ODBC.con!rst.AddNew
+	F.ODBC.con!rst.Set!GS_GROUP(V.Screen.F_Main!txtGroup.text)
+F.Intrinsic.Control.EndIF
+F.ODBC.con!rst.Set!LOCATION(V.Screen.F_Main!txtLocation.text)
+
+F.ODBC.con!rst.Update
+F.ODBC.con!rst.Close
+f.Intrinsic.UI.Msgbox("Data Saved")
+
+program.sub.cmdSave_click.end
+
+program.sub.cmdClear_click.start
+Gui.F_Main.txtGroup.text("")
+gui.f_main.txtLocation.Text("")
+
+program.sub.cmdClear_click.end
+
+Program.sub.exit.start
+F.ODBC.Connection!con.close
+F.intrinsic.control.end
+Program.sub.exit.end
+
+program.sub.cmdlocation_click.start
+V.Local.sColW.Declare(String)
+V.Local.sCol.Declare(String)
+V.Local.sret.Declare(String)
+V.Local.squery.Declare(String)
+F.Intrinsic.String.Split("Loc*!*Description","*!*",V.Local.sCol)
+F.Intrinsic.String.split("1000*!*3000","*!*",V.Local.sColW)
+
+F.Intrinsic.UI.Browser("Select a Group","con","select LOCATION, LOCATION_DESC from V_LOCATIONS ORDER BY LOCATION",V.Local.sCol,V.Local.sColW,6000,6000,V.Local.sret)
+F.Intrinsic.Control.If(V.Local.sret,<>,"***CANCEL***")
+	F.Intrinsic.String.Split(V.Local.sret,"*!*",V.Local.sret)
+	Gui.F_Main.txtLocation.Text(V.Local.sret(0))
+F.Intrinsic.Control.EndIf
+
+
+program.sub.cmdlocation_click.end
+
+program.sub.cmdgroup_click.start
+V.Local.sColW.Declare(String)
+V.Local.sCol.Declare(String)
+V.Local.sret.Declare(String)
+V.Local.squery.Declare(String)
+F.Intrinsic.String.Split("ID","*!*",V.Local.sCol)
+F.Intrinsic.String.split("1000","*!*",V.Local.sColW)
+F.Intrinsic.Control.CallSub(Cmdclear_click)
+F.Intrinsic.String.Concat("SELECT DISTINCT GROUP_ID FROM USER_GROUP WHERE COMPANY = '",V.Caller.CompanyCode,"'",V.Local.squery)
+F.Intrinsic.UI.Browser("Select a Group","con",V.Local.squery,V.Local.sCol,V.Local.sColW,6000,6000,V.Local.sret)
+F.Intrinsic.Control.If(V.Local.sret,<>,"***CANCEL***")
+	F.Intrinsic.String.Split(V.Local.sret,"*!*",V.Local.sret)
+
+	F.Intrinsic.string.Concat("SELECT LOCATION FROM ATG_111_GROUP_INV_LOC WHERE GS_GROUP = '",V.Local.sret(0),"'",V.Local.squery)
+	F.odbc.Connection!con.OpenRecordsetRO("rst",V.local.squery)
+	F.Intrinsic.Control.If(V.odbc.con!rst.EOF,=,False)
+		Gui.F_Main.txtLocation.Text(V.odbc.con!rst.FieldValLTrim!LOCATION)
+	F.Intrinsic.Control.EndIf
+	Gui.F_Main.txtGroup.Text(V.Local.sret(0))
+	F.ODBC.con!rst.Close
+
+F.Intrinsic.Control.EndIf
+
+
+program.sub.cmdgroup_click.end
+
+
