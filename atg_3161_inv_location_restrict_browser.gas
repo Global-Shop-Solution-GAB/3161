@@ -1,0 +1,56 @@
+Program.Sub.ScreenSU.Start
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+
+Program.Sub.Main.Start
+'Runs off hook 17380
+V.Local.swidths.Declare(String)
+V.Local.stitles.Declare(String)
+V.Local.sRet.Declare(String)
+V.Local.sGrps.Declare(String)
+V.Local.sQuery.Declare(String)
+V.Local.iX.Declare(Long)
+F.ODBC.Connection!con.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+F.Global.Security.GetUserGroups(V.Caller.User,V.Caller.CompanyCode,V.Local.sGrps)
+F.Intrinsic.Control.If(V.Local.sGrps,<>,"")
+	
+	F.Intrinsic.String.Split(V.Local.sGrps,"*!*",V.Local.sGrps)
+
+	F.Intrinsic.Control.For(V.Local.iX,V.Local.sGrps.LBound,V.Local.sGrps.UBound,1)
+		F.Intrinsic.Control.If(V.Local.sGrps(v.Local.iX),<>,"")
+			F.Intrinsic.Control.If(V.Local.iX,=,0)
+				F.Intrinsic.String.Concat("GS_GROUP = '",V.Local.sGrps(v.Local.iX),"' ",V.Local.sQuery)
+			F.Intrinsic.Control.Else
+				F.Intrinsic.String.Concat(V.Local.sQuery," OR GS_GROUP = '",V.Local.sGrps(v.Local.iX),"' ",V.Local.sQuery)
+			F.Intrinsic.Control.endif
+		F.Intrinsic.Control.EndIf
+
+	F.Intrinsic.Control.Next(V.Local.iX)
+	F.Intrinsic.String.Concat("SELECT LOCATION FROM ATG_111_GROUP_INV_LOC WHERE ",V.Local.squery,V.Local.sQuery)
+
+	F.Intrinsic.String.Split("Part*!*Loc*!*Description*!*PL*!*Qty On Hand","*!*",V.Local.stitles)
+	F.Intrinsic.String.Split("3000*!*1000*!*3000*!*1000*!*2000","*!*",V.Local.swidths)
+	'Uses custom view to separate Rev and Part
+F.Intrinsic.Debug.Stop
+	F.Intrinsic.String.Concat("SELECT PART, LOCATION, DESCRIPTION, PRODUCT_LINE,QTY_ONHAND from INVENTORY_MSTR WHERE LOCATION IN  (",V.Local.sQuery,") ORDER BY PART,LOCATION",V.Local.sQuery)
+
+	F.Intrinsic.UI.Browser("Select a Inventory Part","con",V.Local.sQuery,V.Local.stitles,V.Local.swidths,8000,6000,V.Local.sRet)
+	F.Intrinsic.Control.If(V.Local.sRet,<>,"***CANCEL***")
+		F.Intrinsic.String.Split(V.Local.sRet,"*!*",V.Local.sRet)
+		V.Passed.009001.Set(V.Local.sret(0))
+		V.Passed.009002.Set(V.Local.sRet(1))
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.EndIf
+
+V.Passed.777777.Set(1)
+F.Intrinsic.Control.End
+
+
+Program.Sub.Main.End
+
+
+
